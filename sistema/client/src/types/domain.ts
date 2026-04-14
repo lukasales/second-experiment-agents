@@ -1,0 +1,35 @@
+export type AssessmentConcept = "MANA" | "MPA" | "MA";
+
+export interface Student {
+  id: string;
+  name: string;
+  cpf: string;
+  email: string;
+}
+
+export interface ClassRoom {
+  id: string;
+  topic: string;
+  year: number;
+  semester: number;
+  enrolledStudentIds: string[];
+}
+
+export interface StudentAssessment {
+  id: string;
+  classId: string;
+  studentId: string;
+  goal: string;
+  concept: AssessmentConcept;
+}
+
+export interface DailyNotification {
+  id: string;
+  studentId: string;
+  date: string;
+  changes: Array<{
+    classId: string;
+    goal: string;
+    concept: AssessmentConcept;
+  }>;
+}

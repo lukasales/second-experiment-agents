@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { createStudent, listStudents, StudentsApiError } from "../config/studentsApi";
+import {
+  createStudent,
+  listStudents,
+  StudentsApiError,
+  updateStudent,
+} from "../config/studentsApi";
 import type { Student } from "../types/domain";
 
 interface StudentFormState {
@@ -39,11 +44,14 @@ const toDisplayErrorMessage = (error: unknown, fallbackMessage: string): string 
 export function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [form, setForm] = useState<StudentFormState>(EMPTY_FORM);
+  const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isEditing = editingStudentId !== null;
+  const editingStudent = students.find((student) => student.id === editingStudentId) ?? null;
 
   const loadStudents = useCallback(async () => {
     setIsLoading(true);
@@ -70,7 +78,29 @@ export function StudentsPage() {
     }));
   };
 
-  const handleCreateStudent = async (event: FormEvent<HTMLFormElement>) => {
+  const resetToCreateMode = useCallback(() => {
+    setEditingStudentId(null);
+    setForm(EMPTY_FORM);
+  }, []);
+
+  const handleStartEditingStudent = (student: Student) => {
+    setEditingStudentId(student.id);
+    setForm({
+      name: student.name,
+      cpf: sanitizeCpf(student.cpf),
+      email: student.email,
+    });
+    setSubmitError(null);
+    setSuccessMessage(null);
+  };
+
+  const handleCancelEdit = () => {
+    resetToCreateMode();
+    setSubmitError(null);
+    setSuccessMessage(null);
+  };
+
+  const handleSubmitStudent = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setSubmitError(null);
@@ -83,19 +113,31 @@ export function StudentsPage() {
     }
 
     setIsSubmitting(true);
+    const payload = {
+      name: form.name.trim(),
+      cpf: sanitizedCpf,
+      email: form.email.trim(),
+    };
 
     try {
-      await createStudent({
-        name: form.name.trim(),
-        cpf: sanitizedCpf,
-        email: form.email.trim(),
-      });
+      if (editingStudentId) {
+        await updateStudent(editingStudentId, payload);
+        resetToCreateMode();
+        setSuccessMessage("Student updated successfully.");
+      } else {
+        await createStudent(payload);
+        setForm(EMPTY_FORM);
+        setSuccessMessage("Student created successfully.");
+      }
 
-      setForm(EMPTY_FORM);
-      setSuccessMessage("Student created successfully.");
       await loadStudents();
     } catch (error) {
-      setSubmitError(toDisplayErrorMessage(error, "Failed to create student."));
+      setSubmitError(
+        toDisplayErrorMessage(
+          error,
+          editingStudentId ? "Failed to update student." : "Failed to create student."
+        )
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -112,13 +154,23 @@ export function StudentsPage() {
       </header>
 
       <div className="students-grid">
-        <article className="page-card students-card">
+        <article className={`page-card students-card${isEditing ? " students-card--editing" : ""}`}>
           <div className="students-card__header">
-            <h3>Create Student</h3>
-            <p>Fill in all fields to add a new student.</p>
+            <h3>{isEditing ? "Edit Student" : "Create Student"}</h3>
+            <p>
+              {isEditing && editingStudent
+                ? `Update ${editingStudent.name} and save to persist changes.`
+                : "Fill in all fields to add a new student."}
+            </p>
           </div>
 
-          <form className="students-form" onSubmit={handleCreateStudent}>
+          {isEditing && editingStudent && (
+            <p className="students-editing-indicator" role="status">
+              Editing mode enabled for {editingStudent.name}.
+            </p>
+          )}
+
+          <form className="students-form" onSubmit={handleSubmitStudent}>
             <label className="students-form__field" htmlFor="student-name">
               Name
               <input
@@ -156,9 +208,22 @@ export function StudentsPage() {
               />
             </label>
 
-            <button type="submit" className="students-form__submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Create student"}
-            </button>
+            <div className="students-form__actions">
+              <button type="submit" className="students-form__submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : isEditing ? "Update student" : "Create student"}
+              </button>
+
+              {isEditing && (
+                <button
+                  type="button"
+                  className="students-form__cancel"
+                  onClick={handleCancelEdit}
+                  disabled={isSubmitting}
+                >
+                  Cancel edit
+                </button>
+              )}
+            </div>
 
             {submitError && (
               <p className="students-status students-status--error" role="alert">
@@ -214,10 +279,26 @@ export function StudentsPage() {
           {!loadError && !isLoading && students.length > 0 && (
             <ul className="students-list">
               {students.map((student) => (
-                <li key={student.id} className="students-list__item">
-                  <div>
-                    <p className="students-list__name">{student.name}</p>
-                    <p className="students-list__meta">CPF: {student.cpf}</p>
+                <li
+                  key={student.id}
+                  className={`students-list__item${
+                    editingStudentId === student.id ? " students-list__item--active" : ""
+                  }`}
+                >
+                  <div className="students-list__item-main">
+                    <div>
+                      <p className="students-list__name">{student.name}</p>
+                      <p className="students-list__meta">CPF: {student.cpf}</p>
+                    </div>
+                    <button
+                      type="button"
+                      className="students-list__select"
+                      onClick={() => handleStartEditingStudent(student)}
+                      disabled={isSubmitting}
+                      aria-pressed={editingStudentId === student.id}
+                    >
+                      {editingStudentId === student.id ? "Editing" : "Edit"}
+                    </button>
                   </div>
                   <p className="students-list__email">{student.email}</p>
                 </li>

@@ -138,6 +138,11 @@ textarea {
   min-height: 360px;
 }
 
+.students-card--editing {
+  border-color: #60a5fa;
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.35);
+}
+
 .students-card__header {
   display: grid;
   gap: 4px;
@@ -164,6 +169,16 @@ textarea {
 .students-form {
   display: grid;
   gap: 14px;
+}
+
+.students-editing-indicator {
+  margin: 0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(37, 99, 235, 0.22);
+  border: 1px solid rgba(96, 165, 250, 0.55);
+  color: #dbeafe;
+  font-size: 0.9rem;
 }
 
 .students-form__field {
@@ -208,6 +223,23 @@ textarea {
   padding: 10px 14px;
 }
 
+.students-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.students-form__cancel {
+  border: 1px solid #475569;
+  border-radius: 10px;
+  background: #111827;
+  color: #d1d5db;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+  padding: 10px 14px;
+}
+
 .students-refresh {
   padding: 8px 12px;
   font-size: 0.9rem;
@@ -218,8 +250,17 @@ textarea {
   filter: brightness(1.08);
 }
 
+.students-form__cancel:hover {
+  filter: brightness(1.15);
+}
+
 .students-form__submit:disabled,
 .students-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.students-form__cancel:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
@@ -296,8 +337,49 @@ textarea {
   min-width: 0;
 }
 
+.students-list__item--active {
+  border-color: #60a5fa;
+  background: rgba(30, 58, 138, 0.25);
+}
+
+.students-list__item-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .students-list__item > div {
   min-width: 0;
+}
+
+.students-list__select {
+  border: 1px solid #475569;
+  border-radius: 9px;
+  background: #0f172a;
+  color: #dbeafe;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: filter 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.students-list__select:hover {
+  filter: brightness(1.1);
+  border-color: #60a5fa;
+}
+
+.students-list__select[aria-pressed="true"] {
+  background: #1d4ed8;
+  border-color: #60a5fa;
+  color: #ffffff;
+}
+
+.students-list__select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .students-list__name,
@@ -345,6 +427,24 @@ textarea {
   }
 
   .students-refresh {
+    width: 100%;
+  }
+
+  .students-form__actions {
+    flex-direction: column;
+  }
+
+  .students-form__cancel,
+  .students-form__submit {
+    width: 100%;
+  }
+
+  .students-list__item-main {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .students-list__select {
     width: 100%;
   }
 }

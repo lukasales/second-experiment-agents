@@ -17,6 +17,8 @@ export interface CreateStudentPayload {
   email: string;
 }
 
+export type UpdateStudentPayload = CreateStudentPayload;
+
 export class StudentsApiError extends Error {
   status: number;
   issues: StudentApiErrorIssue[];
@@ -74,19 +76,39 @@ const parseApiResponse = async <T>(response: Response): Promise<T> => {
   );
 };
 
-export const listStudents = async (): Promise<Student[]> => {
-  const response = await fetch(getApiUrl("/students"));
-  return parseApiResponse<Student[]>(response);
+const requestStudentsApi = async <T>(
+  path: string,
+  init?: RequestInit
+): Promise<T> => {
+  const response = await fetch(getApiUrl(path), init);
+  return parseApiResponse<T>(response);
 };
 
-export const createStudent = async (payload: CreateStudentPayload): Promise<Student> => {
-  const response = await fetch(getApiUrl("/students"), {
-    method: "POST",
+const requestStudentWithPayload = async (
+  method: "POST" | "PUT",
+  path: string,
+  payload: CreateStudentPayload
+): Promise<Student> => {
+  return requestStudentsApi<Student>(path, {
+    method,
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
   });
+};
 
-  return parseApiResponse<Student>(response);
+export const listStudents = async (): Promise<Student[]> => {
+  return requestStudentsApi<Student[]>("/students");
+};
+
+export const createStudent = async (payload: CreateStudentPayload): Promise<Student> => {
+  return requestStudentWithPayload("POST", "/students", payload);
+};
+
+export const updateStudent = async (
+  id: string,
+  payload: UpdateStudentPayload
+): Promise<Student> => {
+  return requestStudentWithPayload("PUT", `/students/${id}`, payload);
 };

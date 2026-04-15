@@ -111,3 +111,240 @@ textarea {
 .page-card li {
   color: #d1d5db;
 }
+
+.students-page {
+  display: grid;
+  gap: 16px;
+}
+
+.students-page__header {
+  background: linear-gradient(140deg, #1f2937, #111827);
+}
+
+.students-page__header p {
+  margin: 0;
+}
+
+.students-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: start;
+}
+
+.students-card {
+  display: grid;
+  gap: 16px;
+  min-height: 360px;
+}
+
+.students-card__header {
+  display: grid;
+  gap: 4px;
+}
+
+.students-card__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.students-card__header p {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.students-card__header--inline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.students-form {
+  display: grid;
+  gap: 14px;
+}
+
+.students-form__field {
+  display: grid;
+  gap: 6px;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.students-form__field input {
+  width: 100%;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #111827;
+  color: #e5e7eb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.students-form__field input::placeholder {
+  color: #6b7280;
+}
+
+.students-form__field input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+  outline: none;
+}
+
+.students-form__submit,
+.students-refresh {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.students-form__submit {
+  padding: 10px 14px;
+}
+
+.students-refresh {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.students-form__submit:hover,
+.students-refresh:hover {
+  filter: brightness(1.08);
+}
+
+.students-form__submit:disabled,
+.students-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.students-status {
+  margin: 0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.students-status--success {
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #a7f3d0;
+}
+
+.students-status--error {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fecaca;
+}
+
+.students-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+.students-loading__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #60a5fa;
+  box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.5);
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+.students-empty {
+  border: 1px dashed #374151;
+  border-radius: 12px;
+  padding: 18px;
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.students-empty p {
+  margin: 0;
+}
+
+.students-empty p + p {
+  margin-top: 6px;
+  color: #9ca3af;
+}
+
+.students-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.students-list__item {
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(17, 24, 39, 0.62);
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.students-list__item > div {
+  min-width: 0;
+}
+
+.students-list__name,
+.students-list__meta,
+.students-list__email {
+  margin: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.students-list__name {
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+.students-list__meta {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.students-list__email {
+  color: #bfdbfe;
+  font-size: 0.92rem;
+  word-break: break-word;
+}
+
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(96, 165, 250, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0);
+  }
+}
+
+@media (max-width: 640px) {
+  .students-card__header--inline {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .students-refresh {
+    width: 100%;
+  }
+}

@@ -76,4 +76,18 @@ const updateStudentById = async (
   return updatedStudent;
 };
 
-export { createStudent, listStudents, updateStudentById };
+const deleteStudentById = async (id: string): Promise<boolean> => {
+  const students = await readStudentsFromFile();
+  const studentIndex = students.findIndex((student) => student.id === id);
+
+  if (studentIndex === -1) {
+    return false;
+  }
+
+  students.splice(studentIndex, 1);
+  await writeStudentsToFile(students);
+
+  return true;
+};
+
+export { createStudent, deleteStudentById, listStudents, updateStudentById };

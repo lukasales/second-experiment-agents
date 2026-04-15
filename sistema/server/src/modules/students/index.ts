@@ -2,6 +2,7 @@ import { Router } from "express";
 import { listStudents } from "./student.repository";
 import {
 	createStudentWithValidation,
+	deleteStudentWithValidation,
 	updateStudentWithValidation,
 } from "./student.service";
 
@@ -77,6 +78,25 @@ studentsRouter.put("/students/:id", async (request, response) => {
 	} catch {
 		response.status(500).json({
 			message: "Failed to update student.",
+		});
+	}
+});
+
+studentsRouter.delete("/students/:id", async (request, response) => {
+	try {
+		const result = await deleteStudentWithValidation(request.params.id);
+
+		if (!result.ok) {
+			response.status(404).json({
+				message: "Student not found.",
+			});
+			return;
+		}
+
+		response.status(204).send();
+	} catch {
+		response.status(500).json({
+			message: "Failed to delete student.",
 		});
 	}
 });

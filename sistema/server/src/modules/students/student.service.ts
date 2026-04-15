@@ -1,5 +1,10 @@
 import { Student } from "../../shared/types/domain";
-import { createStudent, listStudents, updateStudentById } from "./student.repository";
+import {
+  createStudent,
+  deleteStudentById,
+  listStudents,
+  updateStudentById,
+} from "./student.repository";
 import {
   ValidationIssue,
   validateStudentPayload,
@@ -43,6 +48,12 @@ type UpdateStudentServiceResult =
     }
   | InvalidPayloadResult
   | ConflictResult
+  | NotFoundResult;
+
+type DeleteStudentServiceResult =
+  | {
+      ok: true;
+    }
   | NotFoundResult;
 
 const getConflictIssues = (
@@ -158,4 +169,25 @@ const updateStudentWithValidation = async (
   };
 };
 
-export { createStudentWithValidation, updateStudentWithValidation };
+const deleteStudentWithValidation = async (
+  id: string
+): Promise<DeleteStudentServiceResult> => {
+  const wasDeleted = await deleteStudentById(id);
+
+  if (!wasDeleted) {
+    return {
+      ok: false,
+      kind: "not-found",
+    };
+  }
+
+  return {
+    ok: true,
+  };
+};
+
+export {
+  createStudentWithValidation,
+  deleteStudentWithValidation,
+  updateStudentWithValidation,
+};

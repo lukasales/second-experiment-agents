@@ -4,11 +4,5 @@
     "name": "Ana Silva Updated",
     "cpf": "12345678901",
     "email": "ana.updated@example.com"
-  },
-  {
-    "id": "70785676-d44b-42ed-a1a2-fe795d6e845f",
-    "name": "Test User",
-    "cpf": "99999999999",
-    "email": "test.user@example.com"
   }
 ]

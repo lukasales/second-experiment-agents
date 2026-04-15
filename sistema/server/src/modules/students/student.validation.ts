@@ -20,6 +20,7 @@ type ValidationResult =
     };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const cpfPattern = /^\d{11}$/;
 
 const isObjectPayload = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -68,6 +69,11 @@ const validateStudentPayload = (payload: unknown): ValidationResult => {
     errors.push({
       field: "cpf",
       message: "Field 'cpf' is required.",
+    });
+  } else if (!cpfPattern.test(cpf)) {
+    errors.push({
+      field: "cpf",
+      message: "Field 'cpf' must contain exactly 11 digits.",
     });
   }
 

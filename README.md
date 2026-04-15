@@ -31,3 +31,15 @@ This project uses a multi-agent operating model:
 - Closer
 
 The human remains the final decision-maker for acceptance, rejection, and commits.
+
+## Students backend acceptance tests
+
+Run from `sistema/server`:
+
+1. Start the backend API in one terminal:
+	- `npm run dev`
+2. In another terminal, execute Cucumber:
+	- `npm run test:acceptance`
+
+By default, step definitions call `http://localhost:3001/api`.
+If needed, override with `STUDENTS_API_BASE_URL`.

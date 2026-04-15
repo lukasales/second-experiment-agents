@@ -1,47 +1,36 @@
 # Binary Judge - Iteration 01
 
-## Decision goal
+## Decision
 
-Judge the first backend slice for student management after manual validation and technical review.
+Accepted with manual adjustment
 
-## Prompt to use with the Binary Judge agent
+## Why
 
-You are the Binary Judge agent.
+The implemented backend slice works as requested and the core behavior is present:
+- `GET /api/students` returns the persisted student list
+- `POST /api/students` accepts valid input and creates a student
+- invalid input is rejected with `400` and field-specific validation errors
+- JSON persistence is confirmed in `server/data/students.json`
 
-Choose exactly one:
-- Accepted
-- Accepted partially
-- Accepted with manual adjustment
-- Rejected
+However, there are limited quality issues that should be addressed in a follow-up iteration:
+- duplicate CPF/email values are allowed
+- routing/business logic is still coupled in `server/src/modules/students/index.ts`
+- repository path resolution uses `process.cwd()` and is brittle
 
-Decision rules:
-- Do not be optimistic.
-- If the main behavior is missing, reject.
-- If the feature works but has limited issues that can be adjusted manually, choose "Accepted with manual adjustment".
-- If only part of the feature works, choose "Accepted partially".
-- If the requested iteration works as intended and quality is acceptable, choose "Accepted".
+## Evidence
 
-Required output format:
-1. Decision
-2. Why
-3. What evidence supports the decision
-4. What must happen next
+- `npm run build` succeeded
+- `GET /api/students` returned `200` and the persisted student list
+- valid `POST /api/students` returned `201` with created student JSON
+- invalid `POST /api/students` returned `400` with validation errors for `name`, `cpf`, and `email`
+- persisted student records were found in `server/data/students.json`
 
-Planned iteration:
-Implement the first backend slice for student management with GET /api/students and POST /api/students using JSON persistence.
+## What must happen next
 
-Manual validation results:
-[TO BE REPLACED AFTER MANUAL VALIDATION]
-
-Technical review summary:
-[TO BE REPLACED AFTER TECHNICAL REVIEW]
-
-## Usage note
-
-Replace the two placeholder blocks above only after:
-- running build
-- testing GET
-- testing POST valid payload
-- testing POST invalid payload
-- checking JSON persistence
-- getting the technical review
+- accept the iteration
+- record the iteration in the spreadsheet
+- commit the iteration
+- in the next student iteration:
+  - add duplicate CPF/email validation
+  - improve file path handling in `student.repository.ts`
+  - consider extracting a service layer

@@ -1,33 +1,36 @@
 # Closer Summary - Iteration 01
 
-## Goal
+## Accepted scope
 
-Close the first real implementation iteration in a disciplined way.
+- Implemented `GET /api/students`
+- Implemented `POST /api/students`
+- Added JSON persistence for students
+- Added payload validation for `name`, `cpf`, and `email`
+- Wired the students route into the main API router
 
-## Prompt to use with the Closer agent
+## What was manually validated
 
-You are the Closer agent.
+- `npm run build` succeeded
+- `GET /api/students` returned the stored data
+- valid `POST /api/students` created a student with an `id`
+- invalid `POST /api/students` returned `400`
+- `students.json` stored the created student
 
-Required output format:
-1. Accepted scope
-2. What was manually validated
-3. Remaining risks
-4. Suggested commit message
-5. Next best iteration
+## Remaining risks
 
-Planned iteration:
-Implement the first backend slice for student management with GET /api/students and POST /api/students using JSON persistence.
+- No duplicate checks for CPF or email yet
+- No service layer yet
+- File persistence is still simple and not designed for concurrent write scenarios
+- The students module may need route/service separation as it grows
 
-Final accepted result:
-[TO BE REPLACED AFTER THE JUDGE DECISION]
+## Suggested commit message
 
-Remaining concerns:
-[TO BE REPLACED AFTER REVIEW AND VALIDATION]
+feat: add initial students backend slice
 
-## Usage note
+## Next best iteration
 
-Use this only after:
-- implementation
-- manual validation
-- technical review
-- binary judgment
+Extend student management with:
+- duplicate checks for CPF and email
+- `PUT /api/students/:id`
+- `DELETE /api/students/:id`
+- possible service extraction if the students module grows

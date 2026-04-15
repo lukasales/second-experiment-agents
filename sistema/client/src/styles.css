@@ -349,6 +349,12 @@ textarea {
   gap: 12px;
 }
 
+.students-list__item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .students-list__item > div {
   min-width: 0;
 }
@@ -378,6 +384,30 @@ textarea {
 }
 
 .students-list__select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.students-list__delete {
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  border-radius: 9px;
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: filter 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.students-list__delete:hover {
+  filter: brightness(1.08);
+  border-color: rgba(252, 165, 165, 0.75);
+  background: rgba(127, 29, 29, 0.5);
+}
+
+.students-list__delete:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
@@ -444,7 +474,13 @@ textarea {
     flex-direction: column;
   }
 
-  .students-list__select {
+  .students-list__item-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .students-list__select,
+  .students-list__delete {
     width: 100%;
   }
 }

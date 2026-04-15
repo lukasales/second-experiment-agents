@@ -56,8 +56,21 @@ const getSafeErrorIssues = (payload: unknown): StudentApiErrorIssue[] => {
   );
 };
 
+const hasJsonResponseBody = (response: Response): boolean => {
+  if (response.status === 204) {
+    return false;
+  }
+
+  const contentType = response.headers.get("content-type");
+  return typeof contentType === "string" && contentType.includes("application/json");
+};
+
 const parseApiResponse = async <T>(response: Response): Promise<T> => {
   if (response.ok) {
+    if (!hasJsonResponseBody(response)) {
+      return undefined as T;
+    }
+
     return (await response.json()) as T;
   }
 
@@ -111,4 +124,10 @@ export const updateStudent = async (
   payload: UpdateStudentPayload
 ): Promise<Student> => {
   return requestStudentWithPayload("PUT", `/students/${id}`, payload);
+};
+
+export const deleteStudent = async (id: string): Promise<void> => {
+  await requestStudentsApi<void>(`/students/${id}`, {
+    method: "DELETE",
+  });
 };

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import {
   createStudent,
+  deleteStudent,
   listStudents,
   StudentsApiError,
   updateStudent,
@@ -47,10 +48,12 @@ export function StudentsPage() {
   const [editingStudentId, setEditingStudentId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingStudentId, setDeletingStudentId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const isEditing = editingStudentId !== null;
+  const isDeleting = deletingStudentId !== null;
   const editingStudent = students.find((student) => student.id === editingStudentId) ?? null;
 
   const loadStudents = useCallback(async () => {
@@ -98,6 +101,27 @@ export function StudentsPage() {
     resetToCreateMode();
     setSubmitError(null);
     setSuccessMessage(null);
+  };
+
+  const handleDeleteStudent = async (student: Student) => {
+    setSubmitError(null);
+    setSuccessMessage(null);
+    setDeletingStudentId(student.id);
+
+    try {
+      await deleteStudent(student.id);
+
+      if (editingStudentId === student.id) {
+        resetToCreateMode();
+      }
+
+      setSuccessMessage(`Student ${student.name} deleted successfully.`);
+      await loadStudents();
+    } catch (error) {
+      setSubmitError(toDisplayErrorMessage(error, "Failed to delete student."));
+    } finally {
+      setDeletingStudentId(null);
+    }
   };
 
   const handleSubmitStudent = async (event: FormEvent<HTMLFormElement>) => {
@@ -209,7 +233,11 @@ export function StudentsPage() {
             </label>
 
             <div className="students-form__actions">
-              <button type="submit" className="students-form__submit" disabled={isSubmitting}>
+              <button
+                type="submit"
+                className="students-form__submit"
+                disabled={isSubmitting || isDeleting}
+              >
                 {isSubmitting ? "Saving..." : isEditing ? "Update student" : "Create student"}
               </button>
 
@@ -218,7 +246,7 @@ export function StudentsPage() {
                   type="button"
                   className="students-form__cancel"
                   onClick={handleCancelEdit}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isDeleting}
                 >
                   Cancel edit
                 </button>
@@ -250,7 +278,7 @@ export function StudentsPage() {
               type="button"
               className="students-refresh"
               onClick={() => void loadStudents()}
-              disabled={isLoading || isSubmitting}
+              disabled={isLoading || isSubmitting || isDeleting}
             >
               {isLoading ? "Loading..." : "Refresh"}
             </button>
@@ -290,15 +318,25 @@ export function StudentsPage() {
                       <p className="students-list__name">{student.name}</p>
                       <p className="students-list__meta">CPF: {student.cpf}</p>
                     </div>
-                    <button
-                      type="button"
-                      className="students-list__select"
-                      onClick={() => handleStartEditingStudent(student)}
-                      disabled={isSubmitting}
-                      aria-pressed={editingStudentId === student.id}
-                    >
-                      {editingStudentId === student.id ? "Editing" : "Edit"}
-                    </button>
+                    <div className="students-list__item-actions">
+                      <button
+                        type="button"
+                        className="students-list__select"
+                        onClick={() => handleStartEditingStudent(student)}
+                        disabled={isSubmitting || isDeleting}
+                        aria-pressed={editingStudentId === student.id}
+                      >
+                        {editingStudentId === student.id ? "Editing" : "Edit"}
+                      </button>
+                      <button
+                        type="button"
+                        className="students-list__delete"
+                        onClick={() => void handleDeleteStudent(student)}
+                        disabled={isSubmitting || isDeleting}
+                      >
+                        {deletingStudentId === student.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </div>
                   <p className="students-list__email">{student.email}</p>
                 </li>

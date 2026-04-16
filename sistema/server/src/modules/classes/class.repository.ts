@@ -36,6 +36,65 @@ const listClasses = async (): Promise<ClassRoom[]> => {
   return readClassesFromFile();
 };
 
+const getClassById = async (id: string): Promise<ClassRoom | null> => {
+  const classes = await readClassesFromFile();
+  const classRoom = classes.find((item) => item.id === id);
+
+  return classRoom ?? null;
+};
+
+interface UpdateClassAssessmentInput {
+  classId: string;
+  studentId: string;
+  goal: string;
+  concept: string;
+}
+
+const updateClassAssessment = async (
+  input: UpdateClassAssessmentInput
+): Promise<ClassRoom | null> => {
+  const classes = await readClassesFromFile();
+  const classIndex = classes.findIndex((classRoom) => classRoom.id === input.classId);
+
+  if (classIndex === -1) {
+    return null;
+  }
+
+  const classRoom = classes[classIndex];
+  const currentAssessments =
+    typeof classRoom.assessmentsByStudent === "object" &&
+    classRoom.assessmentsByStudent !== null &&
+    !Array.isArray(classRoom.assessmentsByStudent)
+      ? (classRoom.assessmentsByStudent as Record<string, unknown>)
+      : {};
+  const currentStudentAssessments =
+    typeof currentAssessments[input.studentId] === "object" &&
+    currentAssessments[input.studentId] !== null &&
+    !Array.isArray(currentAssessments[input.studentId])
+      ? (currentAssessments[input.studentId] as Record<string, string>)
+      : {};
+
+  const updatedStudentAssessments: Record<string, string> = {
+    ...currentStudentAssessments,
+    [input.goal]: input.concept,
+  };
+
+  const updatedAssessmentsByStudent: Record<string, unknown> = {
+    ...currentAssessments,
+    [input.studentId]: updatedStudentAssessments,
+  };
+
+  const updatedClass: ClassRoom = {
+    ...classRoom,
+    assessmentsByStudent: updatedAssessmentsByStudent,
+  };
+
+  classes[classIndex] = updatedClass;
+  await writeClassesToFile(classes);
+
+  return updatedClass;
+};
+
 const createClass = async (input: CreateClassInput): Promise<ClassRoom> => {
   const classes = await readClassesFromFile();
 
@@ -95,3 +154,4 @@ const deleteClassById = async (id: string): Promise<boolean> => {
 };
 
 export { createClass, deleteClassById, listClasses, updateClassById };
+export { getClassById, updateClassAssessment };

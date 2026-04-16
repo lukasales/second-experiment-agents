@@ -4,7 +4,14 @@
     "topic": "aaaaaaaaaaa",
     "year": 2027,
     "semester": 1,
-    "studentIds": [],
-    "assessmentsByStudent": {}
+    "studentIds": [
+      "92ae41e1-0ecb-47f0-bec1-a965186f40b9",
+      "71030df2-e461-42b0-a91a-d6cb4d63c7c2"
+    ],
+    "assessmentsByStudent": {
+      "92ae41e1-0ecb-47f0-bec1-a965186f40b9": {
+        "Requirements": "MPA"
+      }
+    }
   }
 ]

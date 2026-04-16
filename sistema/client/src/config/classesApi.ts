@@ -108,3 +108,22 @@ export const createClass = async (payload: CreateClassPayload): Promise<ClassRoo
     body: JSON.stringify(payload),
   });
 };
+
+export const updateClass = async (
+  classId: string,
+  payload: CreateClassPayload
+): Promise<ClassRoom> => {
+  return requestClassesApi<ClassRoom>(`/classes/${classId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+};
+
+export const deleteClass = async (classId: string): Promise<void> => {
+  return requestClassesApi<void>(`/classes/${classId}`, {
+    method: "DELETE",
+  });
+};

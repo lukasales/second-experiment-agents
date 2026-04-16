@@ -3,8 +3,10 @@ import type { FormEvent } from "react";
 import {
   ClassesApiError,
   createClass,
+  deleteClass,
   listClasses,
   type CreateClassPayload,
+  updateClass,
 } from "../config/classesApi";
 import type { ClassRoom } from "../types/domain";
 
@@ -40,11 +42,13 @@ const toDisplayErrorMessage = (error: unknown, fallbackMessage: string): string 
 export function ClassesPage() {
   const [classes, setClasses] = useState<ClassRoom[]>([]);
   const [form, setForm] = useState<ClassFormState>(EMPTY_FORM);
+  const [editingClassId, setEditingClassId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const isEditing = editingClassId !== null;
 
   const loadClasses = useCallback(async () => {
     setIsLoading(true);
@@ -69,6 +73,49 @@ export function ClassesPage() {
       ...previous,
       [field]: value,
     }));
+  };
+
+  const resetToCreateMode = () => {
+    setEditingClassId(null);
+    setForm(EMPTY_FORM);
+  };
+
+  const handleSelectClassForEdit = (classRoom: ClassRoom) => {
+    setEditingClassId(classRoom.id);
+    setForm({
+      topic: classRoom.topic,
+      year: String(classRoom.year),
+      semester: String(classRoom.semester),
+    });
+    setSubmitError(null);
+    setSuccessMessage(`Editing \"${classRoom.topic}\".`);
+  };
+
+  const handleCancelEdit = () => {
+    resetToCreateMode();
+    setSubmitError(null);
+    setSuccessMessage("Edit canceled. Back to create mode.");
+  };
+
+  const handleDeleteClass = async (classRoom: ClassRoom) => {
+    setSubmitError(null);
+    setSuccessMessage(null);
+    setIsSubmitting(true);
+
+    try {
+      await deleteClass(classRoom.id);
+
+      if (editingClassId === classRoom.id) {
+        resetToCreateMode();
+      }
+
+      setSuccessMessage("Class deleted successfully.");
+      await loadClasses();
+    } catch (error) {
+      setSubmitError(toDisplayErrorMessage(error, "Failed to delete class."));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSubmitClass = async (event: FormEvent<HTMLFormElement>) => {
@@ -104,15 +151,36 @@ export function ClassesPage() {
       assessmentsByStudent: {},
     };
 
+    if (isEditing) {
+      const classBeingEdited = classes.find((classRoom) => classRoom.id === editingClassId);
+
+      if (!classBeingEdited || !editingClassId) {
+        setSubmitError("The selected class for editing was not found.");
+        return;
+      }
+
+      payload.studentIds = classBeingEdited.studentIds;
+      payload.assessmentsByStudent = classBeingEdited.assessmentsByStudent;
+    }
+
     setIsSubmitting(true);
 
     try {
-      await createClass(payload);
-      setForm(EMPTY_FORM);
-      setSuccessMessage("Class created successfully.");
+      if (isEditing && editingClassId) {
+        await updateClass(editingClassId, payload);
+        resetToCreateMode();
+        setSuccessMessage("Class updated successfully.");
+      } else {
+        await createClass(payload);
+        setForm(EMPTY_FORM);
+        setSuccessMessage("Class created successfully.");
+      }
+
       await loadClasses();
     } catch (error) {
-      setSubmitError(toDisplayErrorMessage(error, "Failed to create class."));
+      setSubmitError(
+        toDisplayErrorMessage(error, isEditing ? "Failed to update class." : "Failed to create class.")
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -129,13 +197,23 @@ export function ClassesPage() {
       </header>
 
       <div className="classes-grid">
-        <article className="page-card classes-card">
+        <article className={`page-card classes-card ${isEditing ? "classes-card--editing" : ""}`.trim()}>
           <div className="classes-card__header">
-            <h3>Create Class</h3>
-            <p>Fill in the class topic, year, and semester to save a new record.</p>
+            <h3>{isEditing ? "Edit Class" : "Create Class"}</h3>
+            <p>
+              {isEditing
+                ? "Update topic, year, and semester, then save changes."
+                : "Fill in the class topic, year, and semester to save a new record."}
+            </p>
           </div>
 
           <form className="classes-form" onSubmit={handleSubmitClass}>
+            {isEditing && (
+              <p className="classes-editing-indicator" role="status">
+                Editing mode is active.
+              </p>
+            )}
+
             <label className="classes-form__field" htmlFor="class-topic">
               Topic
               <input
@@ -178,8 +256,19 @@ export function ClassesPage() {
 
             <div className="classes-form__actions">
               <button type="submit" className="classes-form__submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : "Create class"}
+                {isSubmitting ? "Saving..." : isEditing ? "Save changes" : "Create class"}
               </button>
+
+              {isEditing && (
+                <button
+                  type="button"
+                  className="classes-form__cancel"
+                  onClick={handleCancelEdit}
+                  disabled={isSubmitting}
+                >
+                  Cancel edit
+                </button>
+              )}
             </div>
 
             {submitError && (
@@ -236,11 +325,36 @@ export function ClassesPage() {
           {!loadError && !isLoading && classes.length > 0 && (
             <ul className="classes-list">
               {classes.map((classRoom) => (
-                <li key={classRoom.id} className="classes-list__item">
+                <li
+                  key={classRoom.id}
+                  className={`classes-list__item ${
+                    editingClassId === classRoom.id ? "classes-list__item--active" : ""
+                  }`.trim()}
+                >
                   <div className="classes-list__item-main">
                     <div>
                       <p className="classes-list__topic">{classRoom.topic}</p>
                       <p className="classes-list__meta">Year: {classRoom.year}</p>
+                    </div>
+
+                    <div className="classes-list__item-actions">
+                      <button
+                        type="button"
+                        className="classes-list__select"
+                        onClick={() => handleSelectClassForEdit(classRoom)}
+                        disabled={isSubmitting}
+                        aria-pressed={editingClassId === classRoom.id}
+                      >
+                        {editingClassId === classRoom.id ? "Editing" : "Edit"}
+                      </button>
+                      <button
+                        type="button"
+                        className="classes-list__delete"
+                        onClick={() => void handleDeleteClass(classRoom)}
+                        disabled={isSubmitting}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                   <div className="classes-list__details">

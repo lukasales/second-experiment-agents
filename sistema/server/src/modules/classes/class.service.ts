@@ -1,5 +1,5 @@
 import { ClassRoom } from "../../shared/types/domain";
-import { createClass } from "./class.repository";
+import { createClass, deleteClassById, updateClassById } from "./class.repository";
 import {
   ValidationIssue,
   validateCreateClassPayload,
@@ -14,6 +14,30 @@ type CreateClassServiceResult =
       ok: false;
       kind: "invalid-payload";
       errors: ValidationIssue[];
+    };
+
+type UpdateClassServiceResult =
+  | {
+      ok: true;
+      classRoom: ClassRoom;
+    }
+  | {
+      ok: false;
+      kind: "invalid-payload";
+      errors: ValidationIssue[];
+    }
+  | {
+      ok: false;
+      kind: "not-found";
+    };
+
+type DeleteClassServiceResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      kind: "not-found";
     };
 
 const createClassWithValidation = async (
@@ -37,4 +61,54 @@ const createClassWithValidation = async (
   };
 };
 
-export { createClassWithValidation };
+const updateClassWithValidation = async (
+  id: string,
+  payload: unknown
+): Promise<UpdateClassServiceResult> => {
+  const validation = validateCreateClassPayload(payload);
+
+  if (!validation.isValid) {
+    return {
+      ok: false,
+      kind: "invalid-payload",
+      errors: validation.errors,
+    };
+  }
+
+  const classRoom = await updateClassById(id, validation.data);
+
+  if (!classRoom) {
+    return {
+      ok: false,
+      kind: "not-found",
+    };
+  }
+
+  return {
+    ok: true,
+    classRoom,
+  };
+};
+
+const deleteClassWithValidation = async (
+  id: string
+): Promise<DeleteClassServiceResult> => {
+  const wasDeleted = await deleteClassById(id);
+
+  if (!wasDeleted) {
+    return {
+      ok: false,
+      kind: "not-found",
+    };
+  }
+
+  return {
+    ok: true,
+  };
+};
+
+export {
+  createClassWithValidation,
+  deleteClassWithValidation,
+  updateClassWithValidation,
+};

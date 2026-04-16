@@ -54,4 +54,44 @@ const createClass = async (input: CreateClassInput): Promise<ClassRoom> => {
   return newClass;
 };
 
-export { createClass, listClasses };
+const updateClassById = async (
+  id: string,
+  input: CreateClassInput
+): Promise<ClassRoom | null> => {
+  const classes = await readClassesFromFile();
+  const classIndex = classes.findIndex((classRoom) => classRoom.id === id);
+
+  if (classIndex === -1) {
+    return null;
+  }
+
+  const updatedClass: ClassRoom = {
+    ...classes[classIndex],
+    topic: input.topic,
+    year: input.year,
+    semester: input.semester,
+    studentIds: input.studentIds,
+    assessmentsByStudent: input.assessmentsByStudent,
+  };
+
+  classes[classIndex] = updatedClass;
+  await writeClassesToFile(classes);
+
+  return updatedClass;
+};
+
+const deleteClassById = async (id: string): Promise<boolean> => {
+  const classes = await readClassesFromFile();
+  const classIndex = classes.findIndex((classRoom) => classRoom.id === id);
+
+  if (classIndex === -1) {
+    return false;
+  }
+
+  classes.splice(classIndex, 1);
+  await writeClassesToFile(classes);
+
+  return true;
+};
+
+export { createClass, deleteClassById, listClasses, updateClassById };

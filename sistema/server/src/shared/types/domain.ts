@@ -12,7 +12,8 @@ export interface ClassRoom {
   topic: string;
   year: number;
   semester: number;
-  enrolledStudentIds: string[];
+  studentIds: string[];
+  assessmentsByStudent: Record<string, unknown>;
 }
 
 export interface StudentAssessment {

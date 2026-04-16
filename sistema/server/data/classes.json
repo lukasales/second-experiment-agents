@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "0142b30b-e7f1-4a5d-95c2-38a79f385f94",
+    "topic": "asda",
+    "year": 2026,
+    "semester": 2,
+    "studentIds": [],
+    "assessmentsByStudent": {}
+  },
+  {
+    "id": "5933a719-0901-4f68-9952-6fa1ef5856d9",
+    "topic": "exemplo",
+    "year": 1,
+    "semester": 1,
+    "studentIds": [],
+    "assessmentsByStudent": {}
+  }
+]

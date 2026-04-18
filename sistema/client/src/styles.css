@@ -208,6 +208,54 @@ textarea {
   outline: none;
 }
 
+.classes-form__student-fieldset {
+  margin: 0;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.classes-form__student-legend {
+  color: #e5e7eb;
+  font-size: 0.9rem;
+  padding: 0 6px;
+}
+
+.classes-form__student-help,
+.classes-form__student-count {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.classes-form__student-count {
+  color: #d1d5db;
+}
+
+.classes-students-selector {
+  display: grid;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.classes-students-selector__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.classes-students-selector__item input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 .classes-form__submit,
 .classes-refresh {
   border: 1px solid transparent;

@@ -8,7 +8,8 @@ import {
   type CreateClassPayload,
   updateClass,
 } from "../config/classesApi";
-import type { ClassRoom } from "../types/domain";
+import { StudentsApiError, listStudents } from "../config/studentsApi";
+import type { ClassRoom, Student } from "../types/domain";
 
 interface ClassFormState {
   topic: string;
@@ -39,13 +40,34 @@ const toDisplayErrorMessage = (error: unknown, fallbackMessage: string): string 
   return fallbackMessage;
 };
 
+const toDisplayStudentsErrorMessage = (error: unknown, fallbackMessage: string): string => {
+  if (error instanceof StudentsApiError) {
+    if (error.issues.length > 0) {
+      const details = error.issues.map((issue) => issue.message).join(" ");
+      return `${error.message} ${details}`.trim();
+    }
+
+    return error.message;
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallbackMessage;
+};
+
 export function ClassesPage() {
   const [classes, setClasses] = useState<ClassRoom[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [form, setForm] = useState<ClassFormState>(EMPTY_FORM);
   const [editingClassId, setEditingClassId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [areStudentsLoading, setAreStudentsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [studentsLoadError, setStudentsLoadError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const isEditing = editingClassId !== null;
@@ -68,6 +90,24 @@ export function ClassesPage() {
     void loadClasses();
   }, [loadClasses]);
 
+  const loadStudents = useCallback(async () => {
+    setAreStudentsLoading(true);
+    setStudentsLoadError(null);
+
+    try {
+      const studentsList = await listStudents();
+      setStudents(studentsList);
+    } catch (error) {
+      setStudentsLoadError(toDisplayStudentsErrorMessage(error, "Failed to load students."));
+    } finally {
+      setAreStudentsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadStudents();
+  }, [loadStudents]);
+
   const handleFieldChange = (field: keyof ClassFormState, value: string) => {
     setForm((previous) => ({
       ...previous,
@@ -78,6 +118,7 @@ export function ClassesPage() {
   const resetToCreateMode = () => {
     setEditingClassId(null);
     setForm(EMPTY_FORM);
+    setSelectedStudentIds([]);
   };
 
   const handleSelectClassForEdit = (classRoom: ClassRoom) => {
@@ -87,8 +128,19 @@ export function ClassesPage() {
       year: String(classRoom.year),
       semester: String(classRoom.semester),
     });
+    setSelectedStudentIds(classRoom.studentIds);
     setSubmitError(null);
     setSuccessMessage(`Editing \"${classRoom.topic}\".`);
+  };
+
+  const handleToggleStudentSelection = (studentId: string) => {
+    setSelectedStudentIds((previous) => {
+      if (previous.includes(studentId)) {
+        return previous.filter((id) => id !== studentId);
+      }
+
+      return [...previous, studentId];
+    });
   };
 
   const handleCancelEdit = () => {
@@ -147,7 +199,7 @@ export function ClassesPage() {
       topic,
       year,
       semester,
-      studentIds: [],
+      studentIds: selectedStudentIds,
       assessmentsByStudent: {},
     };
 
@@ -159,7 +211,6 @@ export function ClassesPage() {
         return;
       }
 
-      payload.studentIds = classBeingEdited.studentIds;
       payload.assessmentsByStudent = classBeingEdited.assessmentsByStudent;
     }
 
@@ -173,6 +224,7 @@ export function ClassesPage() {
       } else {
         await createClass(payload);
         setForm(EMPTY_FORM);
+        setSelectedStudentIds([]);
         setSuccessMessage("Class created successfully.");
       }
 
@@ -253,6 +305,52 @@ export function ClassesPage() {
                 required
               />
             </label>
+
+            <fieldset className="classes-form__student-fieldset">
+              <legend className="classes-form__student-legend">Enrolled students</legend>
+
+              {studentsLoadError && (
+                <p className="classes-status classes-status--error" role="alert">
+                  {studentsLoadError}
+                </p>
+              )}
+
+              {!studentsLoadError && areStudentsLoading && (
+                <p className="classes-form__student-help" role="status">
+                  Loading available students...
+                </p>
+              )}
+
+              {!studentsLoadError && !areStudentsLoading && students.length === 0 && (
+                <p className="classes-form__student-help" role="status">
+                  No students available to enroll.
+                </p>
+              )}
+
+              {!studentsLoadError && !areStudentsLoading && students.length > 0 && (
+                <div className="classes-students-selector" role="group" aria-label="Select enrolled students">
+                  {students.map((student) => {
+                    const inputId = `class-student-${student.id}`;
+                    const isSelected = selectedStudentIds.includes(student.id);
+
+                    return (
+                      <label className="classes-students-selector__item" htmlFor={inputId} key={student.id}>
+                        <input
+                          id={inputId}
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleStudentSelection(student.id)}
+                          disabled={isSubmitting}
+                        />
+                        <span>{student.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              <p className="classes-form__student-count">Selected: {selectedStudentIds.length}</p>
+            </fieldset>
 
             <div className="classes-form__actions">
               <button type="submit" className="classes-form__submit" disabled={isSubmitting}>

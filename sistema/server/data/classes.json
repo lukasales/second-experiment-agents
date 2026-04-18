@@ -1,17 +1,14 @@
 [
   {
-    "id": "0142b30b-e7f1-4a5d-95c2-38a79f385f94",
-    "topic": "aaaaaaaaaaa",
-    "year": 2027,
+    "id": "ea1d7b45-6555-4bdb-bbdb-a2accff049b0",
+    "topic": "asdasd",
+    "year": 2026,
     "semester": 1,
     "studentIds": [
-      "92ae41e1-0ecb-47f0-bec1-a965186f40b9",
-      "71030df2-e461-42b0-a91a-d6cb4d63c7c2"
+      "71030df2-e461-42b0-a91a-d6cb4d63c7c2",
+      "b5e467f6-f81e-4f02-8777-3e54de0495bd",
+      "3019751c-3539-4602-86a7-9c58a43eb5fd"
     ],
-    "assessmentsByStudent": {
-      "92ae41e1-0ecb-47f0-bec1-a965186f40b9": {
-        "Requirements": "MPA"
-      }
-    }
+    "assessmentsByStudent": {}
   }
 ]

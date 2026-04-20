@@ -15,6 +15,13 @@ export interface ClassAssessmentsResponse {
   assessmentsByStudent: Record<string, unknown>;
 }
 
+export interface UpdateAssessmentRequest {
+  classId: string;
+  studentId: string;
+  goal: string;
+  concept: "MANA" | "MPA" | "MA";
+}
+
 export class AssessmentsApiError extends Error {
   status: number;
   issues: AssessmentsApiErrorIssue[];
@@ -92,4 +99,14 @@ const requestAssessmentsApi = async <T>(path: string, init?: RequestInit): Promi
 
 export const getClassAssessments = async (classId: string): Promise<ClassAssessmentsResponse> => {
   return requestAssessmentsApi<ClassAssessmentsResponse>(`/assessments/class/${classId}`);
+};
+
+export const updateAssessment = async (payload: UpdateAssessmentRequest): Promise<void> => {
+  return requestAssessmentsApi<void>("/assessments", {
+    method: "PUT",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
 };

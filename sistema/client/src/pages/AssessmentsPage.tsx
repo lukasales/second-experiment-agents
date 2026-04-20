@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getClassAssessments, AssessmentsApiError } from "../config/assessmentsApi";
+import { getClassAssessments, AssessmentsApiError, updateAssessment } from "../config/assessmentsApi";
 import { listClasses, ClassesApiError } from "../config/classesApi";
 import { listStudents, StudentsApiError } from "../config/studentsApi";
 import type { ClassRoom, AssessmentConcept, Student } from "../types/domain";
@@ -8,6 +8,11 @@ interface AssessmentMatrixCell {
   studentId: string;
   studentName: string;
   conceptsByGoal: Record<string, AssessmentConcept | null>;
+}
+
+interface SavingCell {
+  studentId: string;
+  goal: string;
 }
 
 const EMPTY_MESSAGE = "No assessments are available for the selected class yet.";
@@ -78,6 +83,8 @@ export function AssessmentsPage() {
   const [classesError, setClassesError] = useState<string | null>(null);
   const [studentsError, setStudentsError] = useState<string | null>(null);
   const [assessmentsError, setAssessmentsError] = useState<string | null>(null);
+  const [savingCell, setSavingCell] = useState<SavingCell | null>(null);
+  const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
 
   const selectedClass = useMemo(
     () => classes.find((classRoom) => classRoom.id === selectedClassId) ?? null,
@@ -120,6 +127,7 @@ export function AssessmentsPage() {
   const hasNoClasses = !isLoadingClasses && classes.length === 0;
   const hasNoSelection = !selectedClass && !hasNoClasses;
   const hasNoGoals = Boolean(selectedClass) && !isLoadingAssessments && assessmentGoals.length === 0;
+  const hasSaveInProgress = savingCell !== null;
 
   const loadClasses = useCallback(async () => {
     setIsLoadingClasses(true);
@@ -164,6 +172,49 @@ export function AssessmentsPage() {
     }
   }, []);
 
+  const saveCellAssessment = useCallback(
+    async (studentId: string, studentName: string, goal: string, concept: AssessmentConcept) => {
+      if (!selectedClass) {
+        return;
+      }
+
+      setSaveSuccessMessage(null);
+      setAssessmentsError(null);
+      setSavingCell({ studentId, goal });
+
+      try {
+        await updateAssessment({
+          classId: selectedClass.id,
+          studentId,
+          goal,
+          concept,
+        });
+
+        setClassAssessmentsByStudent((previousState) => {
+          if (!previousState) {
+            return previousState;
+          }
+
+          const nextState = { ...previousState };
+          const currentStudentAssessments = nextState[studentId];
+          const nextStudentAssessments = isRecord(currentStudentAssessments) ? { ...currentStudentAssessments } : {};
+
+          nextStudentAssessments[goal] = concept;
+          nextState[studentId] = nextStudentAssessments;
+
+          return nextState;
+        });
+
+        setSaveSuccessMessage(`Saved ${studentName} - ${goal} as ${concept}.`);
+      } catch (error) {
+        setAssessmentsError(getErrorMessage(error, "Failed to save assessment for the selected cell."));
+      } finally {
+        setSavingCell(null);
+      }
+    },
+    [selectedClass]
+  );
+
   useEffect(() => {
     void loadClasses();
     void loadStudents();
@@ -185,8 +236,7 @@ export function AssessmentsPage() {
       <header className="assessments-page__header">
         <h2>Assessments</h2>
         <p>
-          Select one class to review the current assessment matrix. This view is read only in
-          this iteration.
+          Select one class to review and update one assessment cell at a time.
         </p>
       </header>
 
@@ -235,6 +285,12 @@ export function AssessmentsPage() {
             {assessmentsError}
           </p>
         )}
+
+        {saveSuccessMessage && !hasSaveInProgress && (
+          <p className="assessments-page__status assessments-page__status--success" role="status">
+            {saveSuccessMessage}
+          </p>
+        )}
       </div>
 
       {hasNoClasses ? (
@@ -276,9 +332,53 @@ export function AssessmentsPage() {
               {assessmentRows.map((row) => (
                 <tr key={row.studentId}>
                   <th scope="row">{row.studentName}</th>
-                  {assessmentGoals.map((goal) => (
-                    <td key={`${row.studentId}-${goal}`}>{row.conceptsByGoal[goal] ?? "—"}</td>
-                  ))}
+                  {assessmentGoals.map((goal) => {
+                    const cellKey = `${row.studentId}-${goal}`;
+                    const currentConcept = row.conceptsByGoal[goal];
+                    const isCellSaving =
+                      savingCell !== null &&
+                      savingCell.studentId === row.studentId &&
+                      savingCell.goal === goal;
+
+                    return (
+                      <td key={cellKey}>
+                        <div className="assessments-page__cell-editor">
+                          <select
+                            aria-label={`Assessment for ${row.studentName} - ${goal}`}
+                            value={currentConcept ?? ""}
+                            onChange={(event) => {
+                              const nextConcept = event.target.value;
+
+                              if (!isAssessmentConcept(nextConcept)) {
+                                return;
+                              }
+
+                              if (nextConcept === currentConcept || hasSaveInProgress) {
+                                return;
+                              }
+
+                              void saveCellAssessment(row.studentId, row.studentName, goal, nextConcept);
+                            }}
+                            disabled={isLoadingAssessments || hasSaveInProgress}
+                          >
+                            {!currentConcept && (
+                              <option value="" disabled>
+                                Select
+                              </option>
+                            )}
+                            <option value="MANA">MANA</option>
+                            <option value="MPA">MPA</option>
+                            <option value="MA">MA</option>
+                          </select>
+                          {isCellSaving && (
+                            <span className="assessments-page__cell-saving" role="status" aria-live="polite">
+                              Saving...
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>

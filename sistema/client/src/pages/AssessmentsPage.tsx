@@ -15,6 +15,7 @@ interface SavingCell {
   goal: string;
 }
 
+const BASE_ASSESSMENT_GOALS = ["Requirements", "Tests"] as const;
 const EMPTY_MESSAGE = "No assessments are available for the selected class yet.";
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
@@ -52,7 +53,7 @@ const getStudentAssessments = (assessmentsByStudent: Record<string, unknown>, st
   return studentAssessments;
 };
 
-const getAssessmentGoals = (assessmentsByStudent: Record<string, unknown>): string[] => {
+const getStoredAssessmentGoals = (assessmentsByStudent: Record<string, unknown>): string[] => {
   const goals = new Set<string>();
 
   for (const studentAssessments of Object.values(assessmentsByStudent)) {
@@ -96,12 +97,17 @@ export function AssessmentsPage() {
   }, [students]);
 
   const assessmentGoals = useMemo(() => {
-    if (!classAssessmentsByStudent) {
+    if (!selectedClass || !classAssessmentsByStudent) {
       return [];
     }
 
-    return getAssessmentGoals(classAssessmentsByStudent);
-  }, [classAssessmentsByStudent]);
+    const baseGoals: string[] = [...BASE_ASSESSMENT_GOALS];
+    const additionalStoredGoals = getStoredAssessmentGoals(classAssessmentsByStudent).filter(
+      (goal) => !baseGoals.includes(goal)
+    );
+
+    return [...baseGoals, ...additionalStoredGoals];
+  }, [classAssessmentsByStudent, selectedClass]);
 
   const assessmentRows = useMemo<AssessmentMatrixCell[]>(() => {
     if (!selectedClass || !classAssessmentsByStudent) {
@@ -126,7 +132,7 @@ export function AssessmentsPage() {
 
   const hasNoClasses = !isLoadingClasses && classes.length === 0;
   const hasNoSelection = !selectedClass && !hasNoClasses;
-  const hasNoGoals = Boolean(selectedClass) && !isLoadingAssessments && assessmentGoals.length === 0;
+  const hasNoStudents = selectedClass?.studentIds.length === 0;
   const hasSaveInProgress = savingCell !== null;
 
   const loadClasses = useCallback(async () => {
@@ -303,10 +309,10 @@ export function AssessmentsPage() {
           <p>No class selected.</p>
           <p>Choose one class above to load its assessment data.</p>
         </div>
-      ) : hasNoGoals ? (
+      ) : hasNoStudents ? (
         <div className="assessments-page__empty-state" role="status">
-          <p>No assessment goals recorded yet.</p>
-          <p>The selected class does not have assessment values stored in the backend.</p>
+          <p>No students enrolled in the selected class.</p>
+          <p>Add at least one student to this class to use the assessment matrix.</p>
         </div>
       ) : selectedClass && classAssessmentsByStudent ? (
         <div className="assessments-page__table-wrapper" aria-busy={isLoadingAssessments}>

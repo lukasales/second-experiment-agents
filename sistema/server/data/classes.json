@@ -9,7 +9,12 @@
       "b5e467f6-f81e-4f02-8777-3e54de0495bd",
       "3019751c-3539-4602-86a7-9c58a43eb5fd"
     ],
-    "assessmentsByStudent": {}
+    "assessmentsByStudent": {
+      "71030df2-e461-42b0-a91a-d6cb4d63c7c2": {
+        "Requirements": "MANA",
+        "Tests": "MANA"
+      }
+    }
   },
   {
     "id": "52b8204a-ced5-498b-8ceb-f6f2afbcccb0",
@@ -33,5 +38,15 @@
         "Requirements": "MA"
       }
     }
+  },
+  {
+    "id": "9db3bc38-1ce6-4f97-9ceb-19764610df87",
+    "topic": "sem turma",
+    "year": 2020,
+    "semester": 1,
+    "studentIds": [
+      "92ae41e1-0ecb-47f0-bec1-a965186f40b9"
+    ],
+    "assessmentsByStudent": {}
   }
 ]

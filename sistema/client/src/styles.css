@@ -112,6 +112,154 @@ textarea {
   color: #d1d5db;
 }
 
+.assessments-page {
+  display: grid;
+  gap: 16px;
+}
+
+.assessments-page__header {
+  display: grid;
+  gap: 4px;
+}
+
+.assessments-page__header h2,
+.assessments-page__header p {
+  margin: 0;
+}
+
+.assessments-page__header p {
+  color: #cbd5e1;
+}
+
+.assessments-page__controls {
+  display: grid;
+  gap: 12px;
+}
+
+.assessments-page__field {
+  display: grid;
+  gap: 6px;
+  max-width: 420px;
+  color: #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.assessments-page__field select {
+  width: 100%;
+  border: 1px solid #374151;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #111827;
+  color: #e5e7eb;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.assessments-page__field select:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+  outline: none;
+}
+
+.assessments-page__status {
+  margin: 0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.assessments-page__status--loading {
+  background: rgba(37, 99, 235, 0.18);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  color: #dbeafe;
+}
+
+.assessments-page__status--error {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fecaca;
+}
+
+.assessments-page__empty-state {
+  border: 1px dashed #374151;
+  border-radius: 12px;
+  padding: 18px;
+  background: rgba(17, 24, 39, 0.45);
+}
+
+.assessments-page__empty-state p {
+  margin: 0;
+}
+
+.assessments-page__empty-state p + p {
+  margin-top: 6px;
+  color: #9ca3af;
+}
+
+.assessments-page__table-wrapper {
+  display: grid;
+  gap: 14px;
+}
+
+.assessments-page__selected-class {
+  display: grid;
+  gap: 4px;
+}
+
+.assessments-page__selected-class h3,
+.assessments-page__selected-class p {
+  margin: 0;
+}
+
+.assessments-page__selected-class p {
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.assessments-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #374151;
+  background: rgba(17, 24, 39, 0.6);
+}
+
+.assessments-page__table th,
+.assessments-page__table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #374151;
+  border-right: 1px solid #374151;
+  text-align: left;
+  vertical-align: top;
+}
+
+.assessments-page__table thead th {
+  background: rgba(31, 41, 55, 0.95);
+  color: #f9fafb;
+  font-weight: 600;
+}
+
+.assessments-page__table tbody th {
+  color: #f9fafb;
+  font-weight: 600;
+  width: 240px;
+}
+
+.assessments-page__table tbody td {
+  color: #d1d5db;
+}
+
+.assessments-page__table tr:last-child th,
+.assessments-page__table tr:last-child td {
+  border-bottom: none;
+}
+
+.assessments-page__table th:last-child,
+.assessments-page__table td:last-child {
+  border-right: none;
+}
+
 .classes-page {
   display: grid;
   gap: 16px;

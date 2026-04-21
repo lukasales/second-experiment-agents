@@ -1,0 +1,71 @@
+[
+  {
+    "id": "a75fb8e6-11fb-4cd3-8da0-4309521b57d0",
+    "studentId": "71030df2-e461-42b0-a91a-d6cb4d63c7c2",
+    "date": "2026-04-21",
+    "changes": [
+      {
+        "classId": "52b8204a-ced5-498b-8ceb-f6f2afbcccb0",
+        "goal": "Requirements",
+        "concept": "MANA"
+      },
+      {
+        "classId": "52b8204a-ced5-498b-8ceb-f6f2afbcccb0",
+        "goal": "Tests",
+        "concept": "MA"
+      },
+      {
+        "classId": "ea1d7b45-6555-4bdb-bbdb-a2accff049b0",
+        "goal": "Requirements",
+        "concept": "MPA"
+      },
+      {
+        "classId": "fa388aad-1fac-445d-b4d2-171dfd939c4f",
+        "goal": "Requirements",
+        "concept": "MPA"
+      }
+    ],
+    "sentAt": "2026-04-21T00:06:06.094Z"
+  },
+  {
+    "id": "52a8a1fa-1c6c-4c67-a672-41a2ea535a1f",
+    "studentId": "92ae41e1-0ecb-47f0-bec1-a965186f40b9",
+    "date": "2026-04-21",
+    "changes": [
+      {
+        "classId": "52b8204a-ced5-498b-8ceb-f6f2afbcccb0",
+        "goal": "Requirements",
+        "concept": "MANA"
+      },
+      {
+        "classId": "52b8204a-ced5-498b-8ceb-f6f2afbcccb0",
+        "goal": "Tests",
+        "concept": "MPA"
+      },
+      {
+        "classId": "fa388aad-1fac-445d-b4d2-171dfd939c4f",
+        "goal": "Requirements",
+        "concept": "MA"
+      },
+      {
+        "classId": "fa388aad-1fac-445d-b4d2-171dfd939c4f",
+        "goal": "Tests",
+        "concept": "MPA"
+      }
+    ],
+    "sentAt": "2026-04-21T12:45:22.927Z"
+  },
+  {
+    "id": "89d4892f-c27a-4a25-9a07-145b43bdedda",
+    "studentId": "3019751c-3539-4602-86a7-9c58a43eb5fd",
+    "date": "2026-04-21",
+    "changes": [
+      {
+        "classId": "fa388aad-1fac-445d-b4d2-171dfd939c4f",
+        "goal": "Requirements",
+        "concept": "MPA"
+      }
+    ],
+    "sentAt": "2026-04-21T12:54:17.529Z"
+  }
+]

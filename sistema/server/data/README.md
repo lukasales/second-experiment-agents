@@ -7,3 +7,6 @@ Examples of likely files:
 - classes.json
 - assessments.json
 - notifications.json
+
+Current iteration also persists consolidated daily notifications in:
+- notifications.json (one record per student/day with consolidated changes)

@@ -24,13 +24,16 @@ export interface StudentAssessment {
   concept: AssessmentConcept;
 }
 
+export interface DailyNotificationChange {
+  classId: string;
+  goal: string;
+  concept: AssessmentConcept;
+}
+
 export interface DailyNotification {
   id: string;
   studentId: string;
   date: string;
-  changes: Array<{
-    classId: string;
-    goal: string;
-    concept: AssessmentConcept;
-  }>;
+  changes: DailyNotificationChange[];
+  sentAt: string | null;
 }

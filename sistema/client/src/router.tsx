@@ -4,6 +4,7 @@ import { HomePage } from "./pages/HomePage";
 import { StudentsPage } from "./pages/StudentsPage";
 import { ClassesPage } from "./pages/ClassesPage";
 import { AssessmentsPage } from "./pages/AssessmentsPage";
+import { NotificationsPage } from "./pages/NotificationsPage";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: "assessments",
         element: <AssessmentsPage />,
+      },
+      {
+        path: "notifications",
+        element: <NotificationsPage />,
       },
     ],
   },

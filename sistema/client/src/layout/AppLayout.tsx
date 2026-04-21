@@ -42,6 +42,13 @@ export function AppLayout() {
         >
           Assessments
         </NavLink>
+
+        <NavLink
+          to="/notifications"
+          className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
+        >
+          Notifications
+        </NavLink>
       </nav>
 
       <main className="app-main">

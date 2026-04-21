@@ -1,5 +1,6 @@
 import { AssessmentConcept } from "../../shared/types/domain";
 import { getClassById, updateClassAssessment } from "../classes/class.repository";
+import { recordAssessmentNotificationChange } from "../notifications/notification.service";
 import {
   ValidationIssue,
   validateUpdateAssessmentPayload,
@@ -105,6 +106,18 @@ const updateAssessmentWithValidation = async (
       ok: false,
       kind: "not-found",
     };
+  }
+
+  try {
+    await recordAssessmentNotificationChange({
+      classId: validation.data.classId,
+      studentId: validation.data.studentId,
+      goal: validation.data.goal,
+      concept: validation.data.concept,
+    });
+  } catch (error) {
+    // Notification persistence should not break a successful assessment update.
+    console.error("Failed to record assessment notification change.", error);
   }
 
   return {

@@ -2,7 +2,7 @@
 
 This repository contains the second practical experiment for an agent-assisted software development workflow.
 
-## Project purpose
+## Project Purpose
 
 The system manages:
 
@@ -13,181 +13,257 @@ The system manages:
 
 It was built incrementally with agent roles (Planner, Implementer, Technical Reviewer, Binary Judge, Historian, Closer), with final human approval for decisions and commits.
 
-## Implemented modules
+## Implemented Modules
 
-- Students module: create, list, update, delete students
-- Classes module: create, list, update, delete classes
-- Assessments module: class-specific assessment updates and retrieval
+- Students module:
+  - create
+  - list
+  - update
+  - delete
+- Classes module:
+  - create
+  - list
+  - update
+  - delete
+  - enroll students
+- Assessments module:
+  - class-specific assessment retrieval
+  - one-cell-at-a-time assessment update
+  - concepts: `MANA`, `MPA`, `MA`
 - Notifications module:
   - records successful assessment updates
   - consolidates one daily record per student/date
-  - keeps latest concept for repeated (classId, goal)
+  - keeps latest concept for repeated `(classId, goal)`
   - supports manual daily dispatch
-  - prevents re-sending after sentAt is set
+  - prevents re-sending after `sentAt` is set
 - Notifications page (frontend):
   - lists consolidated notifications
   - shows status, sentAt, and consolidated changes
   - allows manual dispatch trigger
 
-## Tech stack
+## Tech Stack
 
 - Frontend: React + TypeScript + Vite
 - Backend: Node.js + TypeScript + Express
 - Acceptance tests: Cucumber (Gherkin)
 - Persistence: JSON files
 
-## Repository structure
+## Repository Structure
 
-- sistema/client: React frontend
-- sistema/server: Node/TypeScript API and Cucumber setup
-- sistema/features: backend acceptance feature files
-- sistema/docs: project scope and iteration artifacts
-- HistóricoDoMeuExperimento.xlsx: experiment history spreadsheet
-- RevisãoDoSistemaDoMeuColega.md: peer review writeup (intentionally pending)
+- `sistema/client`: React frontend
+- `sistema/server`: Node/TypeScript API and Cucumber setup
+- `sistema/features`: backend acceptance feature files
+- `sistema/docs`: project scope and iteration artifacts
+- `HistóricoDoMeuExperimento.xlsx`: experiment history spreadsheet
+- `RevisãoDoSistemaDoMeuColega.md`: peer review writeup
 
-## Ports and runtime defaults
+## Live Deployment
 
-- Backend API default: http://localhost:3001
-- Frontend dev server default: http://localhost:5173
-- Backend CORS default client origin: http://localhost:5173
+- Frontend: `https://second-experiment-agents.onrender.com`
+- Backend: `https://second-experiment-agents-backend.onrender.com`
+- Health check: `https://second-experiment-agents-backend.onrender.com/api/health`
 
-Backend can receive:
+## Ports and Runtime Defaults
 
-- PORT: API port (default 3001)
-- CLIENT_ORIGIN: allowed frontend origin (default http://localhost:5173)
+Local defaults:
 
-## JSON persistence files
+- Backend API: `http://localhost:3001`
+- Frontend dev server: `http://localhost:5173`
+- Backend CORS client origin: `http://localhost:5173`
 
-Persistent files are in sistema/server/data:
+Environment variables:
 
-- students.json
-- classes.json
-- notifications.json
+- `PORT`: API port, default `3001`
+- `CLIENT_ORIGIN`: allowed frontend origin, default `http://localhost:5173`
+- `VITE_API_BASE_URL`: backend base URL used by the frontend build
+
+## JSON Persistence Files
+
+Persistent files are in `sistema/server/data`:
+
+- `students.json`
+- `classes.json`
+- `notifications.json`
 
 Notes:
 
 - Acceptance tests reset and restore JSON files for deterministic execution.
-- notifications.json stores one daily record per student/date, with sentAt tracking dispatch state.
+- `notifications.json` stores one daily record per student/date, with `sentAt` tracking dispatch state.
 
-## Install dependencies (ordered)
+## Setup
 
 Run commands in each package directory, not at repository root.
 
-1. Backend dependencies:
-	- cd sistema/server
-	- npm install
-2. Frontend dependencies:
-	- cd ../client
-	- npm install
+### Backend
 
-## Run backend
+```bash
+cd sistema/server
+npm install
+```
 
-From sistema/server:
+### Frontend
 
-1. npm run dev
-2. API health check:
-	- GET http://localhost:3001/api/health
+```bash
+cd ../client
+npm install
+```
 
-## Run frontend
+## Run Locally
 
-From sistema/client:
+### Backend
 
-1. npm run dev
-2. Open the URL shown by Vite (typically http://localhost:5173)
+From `sistema/server`:
 
-## Run backend acceptance tests
+```bash
+npm run dev
+```
 
-From sistema/server:
+Health check:
 
-1. Keep backend running on port 3001
-2. In another terminal (also in sistema/server), run:
-	- npm run test:acceptance
+```text
+GET http://localhost:3001/api/health
+```
+
+### Frontend
+
+From `sistema/client`:
+
+```bash
+npm run dev
+```
+
+Then open the URL shown by Vite, typically:
+
+```text
+http://localhost:5173
+```
+
+## Acceptance Tests
+
+From `sistema/server`:
+
+1. Keep backend running on port 3001.
+2. In another terminal, run:
+
+```bash
+npm run test:acceptance
+```
 
 Optional override for API base used by step definitions:
 
-- STUDENTS_API_BASE_URL=http://localhost:3001/api
+```text
+STUDENTS_API_BASE_URL=http://localhost:3001/api
+```
 
-## Build commands
+## Build Commands
 
-- Backend build (from sistema/server): npm run build
-- Frontend build (from sistema/client): npm run build
+### Backend
 
-## Main manual validation flows
+From `sistema/server`:
 
-1. Students flow:
-	- create student
-	- edit student
-	- delete student
-	- confirm list updates
-2. Classes flow:
-	- create class with enrolled students
-	- edit class data/enrollment
-	- delete class
-3. Assessments flow:
-	- update assessment concept for enrolled student
-	- verify class assessments endpoint reflects the update
-4. Notifications flow:
-	- perform multiple same-day assessment updates for one student
-	- include updates from different classes
-	- repeat one (classId, goal) with a new concept
-	- verify one consolidated daily record with latest concept only
-5. Dispatch flow:
-	- trigger POST /api/notifications/daily-dispatch
-	- verify sentAt is set after successful dispatch
-	- trigger dispatch again and confirm no resend for already sent records
+```bash
+npm run build
+```
 
-## How notifications work
+### Frontend
 
-1. When PUT /api/assessments succeeds, backend records a notification change.
-2. Consolidation key is (studentId, date).
-3. Inside one daily record:
-	- updates from multiple classes are preserved
-	- repeated (classId, goal) keeps only the latest concept
-4. POST /api/notifications/daily-dispatch sends pending daily notifications.
-5. Successful dispatch sets sentAt, preventing duplicate send in later dispatches.
+From `sistema/client`:
 
-Email transport is development-safe by default (logs dispatch content), so local validation does not depend on SMTP infrastructure.
+```bash
+npm run build
+```
 
-## Notifications page demonstration
+## Manual Validation Flows
 
-Frontend page shows backend notification state for evaluator visibility:
+1. Students flow
+   - create student
+   - edit student
+   - delete student
+   - confirm list updates
+2. Classes flow
+   - create class with enrolled students
+   - edit class data and enrollment
+   - delete class
+3. Assessments flow
+   - select a class
+   - update assessment concept for an enrolled student
+   - verify matrix updates correctly
+   - verify first-launch matrix works for classes with enrolled students but no previous assessments
+4. Notifications flow
+   - perform multiple same-day assessment updates for one student
+   - include updates from different classes
+   - repeat one `(classId, goal)` with a new concept
+   - verify one consolidated daily record with latest concept only
+5. Dispatch flow
+   - trigger `POST /api/notifications/daily-dispatch`
+   - verify `sentAt` is set after successful dispatch
+   - trigger dispatch again and confirm no resend for already sent records
+
+## How Notifications Work
+
+When `PUT /api/assessments` succeeds, the backend records a notification change.
+
+Consolidation key is `(studentId, date)`.
+
+Inside one daily record:
+
+- updates from multiple classes are preserved
+- repeated `(classId, goal)` keeps only the latest concept
+- `POST /api/notifications/daily-dispatch` sends pending daily notifications
+- successful dispatch sets `sentAt`, preventing duplicate sending in later dispatches
+
+Email transport is development-safe by default and logs dispatch content, so validation does not depend on SMTP infrastructure.
+
+## Notifications Page Demonstration
+
+The frontend Notifications page exposes backend notification state for evaluator visibility:
 
 - student
 - date
-- status (pending/sent)
+- status (Pending / Sent)
 - sentAt
 - consolidated changes (class, goal, concept)
 
-The page also includes a manual "Run daily dispatch" action and refreshes data after dispatch.
+The page also includes a manual Run daily dispatch action and refreshes data after dispatch.
 
-## Deploy information
+## Deployment Notes
 
-No mandatory public deployment URL is bundled in this repository.
+### Backend (Render Web Service)
 
-Evaluator-ready deployment path (minimal, no over-engineering):
+Configured as:
 
-1. Deploy backend as a Node service:
-	- build command: npm run build
-	- start command: npm run start
-	- working directory: sistema/server
-	- environment: PORT, CLIENT_ORIGIN
-	- persistent volume or file persistence support required for sistema/server/data
-2. Deploy frontend as static site:
-	- build command: npm run build
-	- publish directory: dist
-	- working directory: sistema/client
-3. Ensure frontend API base points to deployed backend URL if needed.
+- Root Directory: `sistema/server`
+- Build Command: `npm install && npm run build`
+- Start Command: `npm run start`
 
-Important deploy caveat:
+Environment variable used:
 
-- If hosting is ephemeral and does not persist local files, JSON storage will reset between restarts. Use persistent disk/volume for evaluator demonstrations that require retained data.
+- `CLIENT_ORIGIN=https://second-experiment-agents.onrender.com`
 
-## Final delivery checklist status
+### Frontend (Render Static Site)
+
+Configured as:
+
+- Root Directory: `sistema/client`
+- Build Command: `npm install && npm run build`
+- Publish Directory: `dist`
+
+Environment variable used:
+
+- `VITE_API_BASE_URL=https://second-experiment-agents-backend.onrender.com`
+
+## Important Deploy Caveat
+
+This project persists data in local JSON files.
+
+On Render Free, filesystem persistence is limited and ephemeral, so stored JSON data may reset after restart or redeploy. This is acceptable for evaluator demonstration, but it is not a production-grade persistence strategy.
+
+## Final Delivery Checklist
 
 - Code for delivered system: present
 - Backend acceptance tests: present and updated for notifications coverage
-- Iteration documentation: present under sistema/docs/iterations
-- Experiment history spreadsheet: present (HistóricoDoMeuExperimento.xlsx)
-- README for evaluator onboarding: present (this file)
-- Deploy/access guidance: documented above
-- Peer review writeup: intentionally pending outside this iteration
+- Iteration documentation: present under `sistema/docs/iterations`
+- Experiment history spreadsheet: present (`HistóricoDoMeuExperimento.xlsx`)
+- README for evaluator onboarding: present
+- Deploy/access guidance: documented and deployed
+- Peer review writeup: present separately in `RevisãoDoSistemaDoMeuColega.md`

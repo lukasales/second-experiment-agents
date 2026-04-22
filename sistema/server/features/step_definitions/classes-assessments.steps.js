@@ -95,9 +95,26 @@ When(
   }
 );
 
+When(
+  "I update missing class id {string} with topic {string}, year {int}, semester {int}, and student ids {string}",
+  async function (classId, topic, year, semester, studentIdsRaw) {
+    this.lastResponse = await requestJson("PUT", `/classes/${classId}`, {
+      topic,
+      year,
+      semester,
+      studentIds: parseStudentIds(studentIdsRaw),
+      assessmentsByStudent: {},
+    });
+  }
+);
+
 When("I delete that class", async function () {
   assert.ok(this.lastClassId, "Expected an existing class id before delete.");
   this.lastResponse = await requestJson("DELETE", `/classes/${this.lastClassId}`);
+});
+
+When("I delete missing class id {string}", async function (classId) {
+  this.lastResponse = await requestJson("DELETE", `/classes/${classId}`);
 });
 
 When("I request assessments for that class", async function () {
@@ -116,6 +133,18 @@ When(
 
     this.lastResponse = await requestJson("PUT", "/assessments", {
       classId: this.lastClassId,
+      studentId,
+      goal,
+      concept,
+    });
+  }
+);
+
+When(
+  "I update assessment for missing class id {string} with student id {string}, goal {string}, and concept {string}",
+  async function (classId, studentId, goal, concept) {
+    this.lastResponse = await requestJson("PUT", "/assessments", {
+      classId,
       studentId,
       goal,
       concept,

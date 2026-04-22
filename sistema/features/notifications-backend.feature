@@ -33,3 +33,19 @@ Feature: Notifications backend acceptance
     When I run daily notifications dispatch for the captured notification date
     Then the response status should be 200
     And the dispatch result should report sent count 0 and failed count 0
+
+  Scenario: Dispatch without explicit date uses today and sends pending notifications
+    Given a notification test class exists with topic "Dispatch Default Date Class", year 2026, semester 2, and enrolled notification test student
+    When I update notification test assessment in class A with goal "Quality" and concept "MPA"
+    And I request the notifications list
+    Then the response status should be 200
+    And there should be exactly one pending notification record for the notification test student on today
+    When I run daily notifications dispatch without date
+    Then the response status should be 200
+    And the dispatch result should report date as today
+    And the dispatch result should report sent count 1 and failed count 0
+
+  Scenario: Reject invalid dispatch date format
+    When I run daily notifications dispatch for invalid date "2026-99-99"
+    Then the response status should be 400
+    And the response should include message "Invalid date. Expected format: YYYY-MM-DD."

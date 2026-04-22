@@ -56,6 +56,26 @@ Given(
   }
 );
 
+When(
+  "I update the student with cpf {string} using name {string}, cpf {string}, and email {string}",
+  async function (targetCpf, name, cpf, email) {
+    const listResponse = await requestJson("GET", "/students");
+
+    assert.equal(listResponse.status, 200);
+    assert.ok(Array.isArray(listResponse.body));
+
+    const targetStudent = listResponse.body.find((student) => student.cpf === targetCpf);
+
+    assert.ok(targetStudent, `Expected to find a student with cpf ${targetCpf}.`);
+
+    this.lastResponse = await requestJson("PUT", `/students/${targetStudent.id}`, {
+      name,
+      cpf,
+      email,
+    });
+  }
+);
+
 When("I request the students list", async function () {
   this.lastResponse = await requestJson("GET", "/students");
 });
@@ -89,6 +109,21 @@ When("I delete that student", async function () {
   this.lastResponse = await requestJson("DELETE", `/students/${this.lastStudentId}`);
 });
 
+When(
+  "I update missing student id {string} with name {string}, cpf {string}, and email {string}",
+  async function (studentId, name, cpf, email) {
+    this.lastResponse = await requestJson("PUT", `/students/${studentId}`, {
+      name,
+      cpf,
+      email,
+    });
+  }
+);
+
+When("I delete missing student id {string}", async function (studentId) {
+  this.lastResponse = await requestJson("DELETE", `/students/${studentId}`);
+});
+
 Then("the response status should be {int}", function (expectedStatus) {
   assert.equal(this.lastResponse?.status, expectedStatus);
 });
@@ -119,6 +154,11 @@ Then("the response should include a conflict on field {string}", function (field
   );
 
   assert.equal(hasFieldConflict, true);
+});
+
+Then("the response should include message {string}", function (expectedMessage) {
+  assert.equal(typeof this.lastResponse?.body, "object");
+  assert.equal(this.lastResponse.body?.message, expectedMessage);
 });
 
 Then("the student list should not contain the last student id", function () {

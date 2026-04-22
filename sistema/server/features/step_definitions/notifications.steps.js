@@ -166,6 +166,16 @@ When("I run daily notifications dispatch for the captured notification date", as
   });
 });
 
+When("I run daily notifications dispatch without date", async function () {
+  this.lastResponse = await requestJson("POST", "/notifications/daily-dispatch", {});
+});
+
+When("I run daily notifications dispatch for invalid date {string}", async function (date) {
+  this.lastResponse = await requestJson("POST", "/notifications/daily-dispatch", {
+    date,
+  });
+});
+
 Then(
   "there should be exactly one notification record for the notification test student on today",
   function () {
@@ -260,6 +270,12 @@ Then(
     assert.equal(this.lastResponse.body.failedCount, expectedFailedCount);
   }
 );
+
+Then("the dispatch result should report date as today", function () {
+  assert.equal(typeof this.lastResponse?.body, "object");
+  assert.ok(this.lastResponse.body);
+  assert.equal(this.lastResponse.body.date, getTodayIsoDate());
+});
 
 Then(
   "the notification record for the notification test student on today should be marked as sent",
